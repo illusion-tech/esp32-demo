@@ -11,7 +11,7 @@
 void InputInitial(void); //设置端口为输入
 void OutputHigh(void);   //输出1
 void OutputLow(void);    //输出0
-static uint8 getData(); //读取状态
+uint8 getData(); //读取状态
 void COM(void); // 温湿写入
 void Delay_ms(uint16 ms);
 void HW507(void);

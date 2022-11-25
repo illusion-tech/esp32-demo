@@ -39,7 +39,7 @@ void OutputLow(void)//输出0
   gpio_set_level(HW507_PIN, 0);
 }
  
- uint8 getData()//读取状态
+uint8 getData()//读取状态
 {
 	return gpio_get_level(HW507_PIN);
 }
