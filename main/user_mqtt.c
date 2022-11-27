@@ -37,6 +37,7 @@
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
 #include "hw507.h"
+#include "led_pwm.h"
 
 static const char *TAG = "MQTT_EXAMPLE";
 
@@ -49,6 +50,7 @@ static const char *TAG = "MQTT_EXAMPLE";
 #define AliyunPublishTopic_user_update "/hympO86IcSD/hw507/user/update"
 #define AliyunSubscribeTopic_post "/sys/hympO86IcSD/hw507/thing/event/property/post"
 #define AliyunSubscribeTopic_post_reply "/sys/hympO86IcSD/hw507/thing/event/property/post_reply"
+#define AliyunSubscribeTopic_user_light_control "/hympO86IcSD/hw507/user/light_control"
 
 
 char mqtt_message[256] = {0};
@@ -72,6 +74,7 @@ static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event)
     ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
 
     msg_id = esp_mqtt_client_subscribe(client, AliyunSubscribeTopic_user_get, 0);
+    msg_id = esp_mqtt_client_subscribe(client, AliyunSubscribeTopic_user_light_control, 0);
     ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
 
     break;
@@ -92,8 +95,15 @@ static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event)
     break;
   case MQTT_EVENT_DATA:
     ESP_LOGI(TAG, "MQTT_EVENT_DATA");
-    printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
+    if(strcmp(event->topic, AliyunSubscribeTopic_user_light_control) == 0)
+    {
+      printf("LightDATA=%.*s\r\n", event->data_len, event->data);
+    }
     printf("DATA=%.*s\r\n", event->data_len, event->data);
+    //todo: 收到订阅消息对led灯处理
+    ledc_init();
+    blink(LED_RED_CH,3);
+    fade(LED_RED_CH);
 
     break;
   case MQTT_EVENT_ERROR:
@@ -162,12 +172,12 @@ void user_mqtt_app_start(void)
     Temp_small = getTempSmall();
 
     //上传数据格式
-    sprintf(mqtt_message, "{\"method\":\"thing.event.property.post\",\"id\":\"1234567890\",\"params\":{\"temperature\":%d,\"Humidity\":%d,},\"version\":\"1.1.1\"}",
-            Temp, Humi);
+    sprintf(mqtt_message, "{\"method\":\"thing.event.property.post\",\"id\":\"1234567890\",\"params\":{\"temperature\":%d,\"Humidity\":%d,,\"LEDSwitch\":%d},\"version\":\"1.1.1\"}",
+            Temp, Humi,1);
 
     esp_mqtt_client_publish(client, AliyunSubscribeTopic_post, mqtt_message, strlen(mqtt_message), 0, 0); //上传
 
-    printf("Temp=%d, Humi=%d\r\n", Temp, Humi);
+    printf("Temp=%d, Humi=%d, LEDSwitch =%d\r\n", Temp, Humi,1);
 
     vTaskDelay(5000 / portTICK_PERIOD_MS);
   }
