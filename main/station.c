@@ -28,8 +28,8 @@
    the config you want - ie #define EXAMPLE_WIFI_SSID "mywifissid"
 */
 
-#define EXAMPLE_ESP_WIFI_SSID      "TP-LINK_Xccx_2.4G"
-#define EXAMPLE_ESP_WIFI_PASS      "12341234"
+#define EXAMPLE_ESP_WIFI_SSID      "MERCURY_C93F"
+#define EXAMPLE_ESP_WIFI_PASS      "12345678.."
 #define EXAMPLE_ESP_MAXIMUM_RETRY  10
 
 
