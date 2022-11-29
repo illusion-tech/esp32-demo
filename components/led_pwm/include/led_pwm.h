@@ -13,6 +13,10 @@
 #define LED_RED_PIN     3
 #define LED_GREEN_PIN   4
 #define LED_BLUE_PIN    5
+#define LED_FADE_PERIOD_MS     100     /**< The time from the current state to the next state */
+#define LED_BLINK_PERIOD_MS    1500    /**< Period of blinking lights */
+#define LED_FREQ_HZ            5000    /**< frequency of ledc signal */
+#define LED_FADE_PERIOD_MAX_MS (3 * 1000)
 
 #define GAMMA_CORRECTION 0.8                               /**< Gamma curve parameter */
 #define GAMMA_TABLE_SIZE 256                               /**< Gamma table size, used for led fade*/
@@ -26,14 +30,36 @@
 #define GET_FIXED_INTEGER_PART(X, Q) (X >> Q)
 #define GET_FIXED_DECIMAL_PART(X, Q) (X & ((0x1U << Q) - 1))
 
+typedef struct {
+    int data;
+    size_t num;
+} chan_gama_data_t;
+
+typedef struct {
+    char *mode;
+    uint8_t status;           /** 0 | 1 */
+    uint16_t red;             /** 0-255 */
+    uint16_t green;           /** 0-255 */
+    uint16_t blue;            /** 0-255 */
+    uint8_t brightness;       /** 0-100 */
+    uint32_t fade_period_ms;
+    uint32_t blink_period_ms;
+    chan_gama_data_t chan_gama_data[LED_CHANNEL_MAX];
+} light_state_t;
+
 void ledc_init();
 
 void blink(uint32_t ledc_channel, uint32_t count);
 
 void switch_channel(uint32_t ledc_channel, int status);
 
-esp_err_t light_driver_set_rgb(uint8_t red, uint8_t green, uint8_t blue);
+esp_err_t light_driver_set_rgb(uint16_t red, uint16_t green, uint16_t blue);
+esp_err_t light_driver_get_rgb(uint16_t *red, uint16_t *green, uint16_t *blue);
+
+esp_err_t light_driver_set_brightness(uint8_t brightness);
+uint8_t light_driver_get_brightness();
 
 void light_driver_set_switch(int status);
+bool light_driver_get_switch();
 
 #endif

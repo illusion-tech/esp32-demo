@@ -55,13 +55,14 @@ typedef struct
     char version;
     struct
     {
+        uint8_t brightness;
         struct
         {
-            uint8_t red;
-            uint8_t green;
-            uint8_t blue;
+            uint16_t red;
+            uint16_t green;
+            uint16_t blue;
         } rgb;
-        int status;
+        uint8_t status;
     } params;
 } mqtt_event_data_light_control;
 
@@ -72,19 +73,18 @@ static void light_control_topic_event(esp_mqtt_event_handle_t event)
     cJSON *data = cJSON_Parse(event->data);
     cJSON *params = cJSON_GetObjectItem(data, "params");
     cJSON *rgb = cJSON_GetObjectItem(params, "rgb");
-    uint8_t red = cJSON_GetObjectItem(rgb, "red")->valueint;
-    uint8_t green = cJSON_GetObjectItem(rgb, "green")->valueint;
-    uint8_t blue = cJSON_GetObjectItem(rgb, "blue")->valueint;
-    int status = cJSON_GetObjectItem(params, "status")->valueint;
+    uint16_t red = cJSON_GetObjectItem(rgb, "red")->valueint;
+    uint16_t green = cJSON_GetObjectItem(rgb, "green")->valueint;
+    uint16_t blue = cJSON_GetObjectItem(rgb, "blue")->valueint;
+    uint8_t status = cJSON_GetObjectItem(params, "status")->valueint;
+    uint8_t brightness = cJSON_GetObjectItem(params, "brightness")->valueint;
 
-    printf("Status: %d, Red: %d, Green: %d, Blue: %d\r\n", status, red, green, blue);
+    printf("Status: %d, Red: %d, Green: %d, Blue: %d, Brightness: %d\r\n", status, red, green, blue, brightness);
 
-    if (status)
-    {
+    if (status) {
         light_driver_set_rgb(red, green, blue);
-    }
-    else
-    {
+        light_driver_set_brightness(brightness);
+    } else {
         light_driver_set_switch(0);
     }
 
@@ -95,6 +95,9 @@ static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event)
 {
     esp_mqtt_client_handle_t client = event->client;
     int msg_id;
+
+    int event_topic_len = event->topic_len;
+    char event_topic[event_topic_len];      /** 消息体中的 topic */
 
     switch (event->event_id)
     {
@@ -124,12 +127,13 @@ static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event)
         ESP_LOGI(TAG, "MQTT_EVENT_DATA");
         printf("TOPIC: %.*s\r\n", event->topic_len, event->topic);
         printf("DATA: %.*s\r\n", event->data_len, event->data);
-
-        // TODO: topic 判断
+        // TODO: 截取出 topic
+        // strncpy(event_topic, event->topic, event_topic_len);
+        // printf("Topic: %.*s\r\n", event_topic);
+        // if (strcmp(event_topic, AliyunSubscribeTopic_USER_LIGHT_CONTROL) == 0)
         {
             light_control_topic_event(event);
         }
-
         break;
     case MQTT_EVENT_ERROR:
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
