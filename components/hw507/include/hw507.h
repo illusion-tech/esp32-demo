@@ -2,7 +2,7 @@
 #define _HW507_H_
 
 
-#define HW507_PIN   10//定义HW507的引脚
+#define HW507_PIN CONFIG_HW507_GPIO
  
 #define uchar unsigned char
 #define uint8 unsigned char
@@ -14,7 +14,7 @@ void OutputLow(void);    //输出0
 uint8 getData(); //读取状态
 void COM(void); // 温湿写入
 void Delay_ms(uint16 ms);
-void HW507(void);
+void hw507_init(void);
 uchar getTemp();
 uchar getHumi();
 uchar getHumiSmall();

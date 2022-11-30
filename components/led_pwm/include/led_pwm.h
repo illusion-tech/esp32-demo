@@ -1,18 +1,14 @@
 #ifndef _LED_PWM_H_
 #define _LED_PWM_H_
 
-#include "driver/ledc.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-
 #define LED_RED_CH      LEDC_CHANNEL_0
 #define LED_GREEN_CH    LEDC_CHANNEL_1
 #define LED_BLUE_CH     LEDC_CHANNEL_2
 #define LED_CHANNEL_MAX 3
 
-#define LED_RED_PIN     3
-#define LED_GREEN_PIN   4
-#define LED_BLUE_PIN    5
+#define LED_RED_PIN            CONFIG_LED_R_GPIO
+#define LED_GREEN_PIN          CONFIG_LED_G_GPIO
+#define LED_BLUE_PIN           CONFIG_LED_B_GPIO
 #define LED_FADE_PERIOD_MS     100     /**< The time from the current state to the next state */
 #define LED_BLINK_PERIOD_MS    1500    /**< Period of blinking lights */
 #define LED_FREQ_HZ            5000    /**< frequency of ledc signal */
